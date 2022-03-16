@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'Components/ShareDialog.dart';
+
+final PageController _pageController = PageController();
+final ShareDialog _shareDialog = ShareDialog(_pageController);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
@@ -35,23 +40,44 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
     return Scaffold(
         backgroundColor: Colors.blue,
         appBar: AppBar(
-          title: const Text('Cerealis'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/logo.jpg',
+                fit: BoxFit.contain,
+                height: 32,
+              ),
+              Container(
+                  padding: const EdgeInsets.all(8.0), child: Text('Cerealis'))
+            ],
+
+          ),
           backgroundColor: Colors.black,
           centerTitle: true,
         ),
-        body: Center(
-            child: ArCoreView(
-          focusBox: Container(
-            width: screenSize.width * 0.5,
-            height: screenSize.width * 0.5,
-            decoration: BoxDecoration(
-                border: Border.all(width: 1, style: BorderStyle.solid)),
-          ),
-          width: screenSize.width,
-          height: screenSize.height,
-          onImageRecognized: _onImageRecognized,
-          onArCoreViewCreated: _onArCoreViewCreated,
-        )));
+        bottomNavigationBar: IconButton(onPressed: () async {_pageController.jumpToPage(1);}, icon: Icon(Icons.share)),
+        body: PageView(
+          controller: _pageController,
+          children: <Widget>[
+            Center(
+              child: ArCoreView(
+                focusBox: Container(
+                  width: screenSize.width * 0.5,
+                  height: screenSize.width * 0.5,
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, style: BorderStyle.solid)),
+                ),
+                width: screenSize.width,
+                height: screenSize.height,
+                onImageRecognized: _onImageRecognized,
+                onArCoreViewCreated: _onArCoreViewCreated,
+              ),
+            ),
+            _shareDialog.build(context),
+          ],
+        ),
+      );
   }
 
   Future<void> _onArCoreViewCreated(ArCoreViewController controller) async {
