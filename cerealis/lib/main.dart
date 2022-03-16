@@ -7,8 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'Components/ShareDialog.dart';
 
-final LoginDialog _loginDialog = LoginDialog();
 final PageController _pageController = PageController();
+final ShareDialog _shareDialog = ShareDialog(_pageController);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,8 +32,6 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => share());
   }
 
   @override
@@ -42,14 +40,26 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
     return Scaffold(
         backgroundColor: Colors.blue,
         appBar: AppBar(
-          title: const Text('Cerealis'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/logo.jpg',
+                fit: BoxFit.contain,
+                height: 32,
+              ),
+              Container(
+                  padding: const EdgeInsets.all(8.0), child: Text('Cerealis'))
+            ],
+
+          ),
           backgroundColor: Colors.black,
           centerTitle: true,
         ),
-        bottomNavigationBar: IconButton(onPressed: () async {share();}, icon: Icon(Icons.share)),
+        bottomNavigationBar: IconButton(onPressed: () async {_pageController.jumpToPage(1);}, icon: Icon(Icons.share)),
         body: PageView(
           controller: _pageController,
-          children: [
+          children: <Widget>[
             Center(
               child: ArCoreView(
                 focusBox: Container(
@@ -64,6 +74,7 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
                 onArCoreViewCreated: _onArCoreViewCreated,
               ),
             ),
+            _shareDialog.build(context),
           ],
         ),
       );
@@ -95,8 +106,4 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
         textColor: Colors.white,
         fontSize: 20.0);
   }
-
-  void share() async {
-   String state = await _loginDialog.ShareDialogShow(context);
- }
 }
