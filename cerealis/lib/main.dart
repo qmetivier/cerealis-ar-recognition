@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'Components/ShareDialog.dart';
+
+final LoginDialog _loginDialog = LoginDialog();
+final PageController _pageController = PageController();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
@@ -27,6 +32,8 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => share());
   }
 
   @override
@@ -39,19 +46,27 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
           backgroundColor: Colors.black,
           centerTitle: true,
         ),
-        body: Center(
-            child: ArCoreView(
-          focusBox: Container(
-            width: screenSize.width * 0.5,
-            height: screenSize.width * 0.5,
-            decoration: BoxDecoration(
-                border: Border.all(width: 1, style: BorderStyle.solid)),
-          ),
-          width: screenSize.width,
-          height: screenSize.height,
-          onImageRecognized: _onImageRecognized,
-          onArCoreViewCreated: _onArCoreViewCreated,
-        )));
+        bottomNavigationBar: IconButton(onPressed: () async {share();}, icon: Icon(Icons.share)),
+        body: PageView(
+          controller: _pageController,
+          children: [
+            Center(
+              child: ArCoreView(
+                focusBox: Container(
+                  width: screenSize.width * 0.5,
+                  height: screenSize.width * 0.5,
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, style: BorderStyle.solid)),
+                ),
+                width: screenSize.width,
+                height: screenSize.height,
+                onImageRecognized: _onImageRecognized,
+                onArCoreViewCreated: _onArCoreViewCreated,
+              ),
+            ),
+          ],
+        ),
+      );
   }
 
   Future<void> _onArCoreViewCreated(ArCoreViewController controller) async {
@@ -80,4 +95,8 @@ class _ImageRecognitionAppState extends State<ImageRecognitionApp> {
         textColor: Colors.white,
         fontSize: 20.0);
   }
+
+  void share() async {
+   String state = await _loginDialog.ShareDialogShow(context);
+ }
 }
